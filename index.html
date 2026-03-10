@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DiştaKip – Diş Hekimliği 2. Sınıf</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DiştaKip">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+  :root {
+    --bg:#0f1117; --surface:#1a1d27; --card:#21253a;
+    --accent:#4f8ef7; --accent2:#a78bfa; --accent3:#34d399;
+    --danger:#f87171; --warn:#fbbf24;
+    --text:#e8eaf0; --muted:#6b7280; --border:#2e3347;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;}
+  #app{display:flex;flex-direction:column;height:100svh;max-width:430px;margin:0 auto;}
+
+  header{padding:14px 20px 10px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .header-top{display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.5px;}
+  .logo span{color:var(--accent);} .logo em{color:var(--accent2);font-style:normal;}
+  .subtitle{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:0.5px;text-transform:uppercase;}
+  .hbadge{background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;}
+
+  nav{display:flex;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;}
+  nav button{flex:1;padding:10px 0 8px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .2s;}
+  nav button.active{color:var(--accent);}
+  nav button .ni{font-size:20px;line-height:1;}
+  nav button .nl{font-weight:500;text-transform:uppercase;letter-spacing:0.4px;}
+
+  .pages{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+  .page{display:none;padding:14px 14px 80px;animation:fadeIn .2s ease;}
+  .page.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;}
+  .card-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;display:inline-block;}
+
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .stat-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 12px;display:flex;flex-direction:column;gap:4px;}
+  .sval{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;}
+  .slbl{font-size:11px;color:var(--muted);font-weight:500;}
+  .c-blue .sval{color:var(--accent);} .c-purple .sval{color:var(--accent2);} .c-green .sval{color:var(--accent3);} .c-red .sval{color:var(--danger);}
+
+  .ders-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+  .ders-row:last-child{border-bottom:none;padding-bottom:0;}
+  .ders-name{font-size:13px;font-weight:500;flex:1;margin-right:8px;}
+  .badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;letter-spacing:0.3px;white-space:nowrap;}
+  .badge.ok{background:#16534033;color:var(--accent3);border:1px solid #34d39940;}
+  .badge.warn{background:#78350033;color:var(--warn);border:1px solid #fbbf2440;}
+  .badge.danger{background:#4c150033;color:var(--danger);border:1px solid #f8717140;}
+  .pbar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:5px;}
+  .pfill{height:100%;border-radius:3px;transition:width .4s ease;}
+
+  .odev-item{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;position:relative;overflow:hidden;transition:opacity .2s;}
+  .odev-item.done{opacity:0.42;}
+  .odev-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+  .odev-item.urgent::before{background:var(--danger);}
+  .odev-item.soon::before{background:var(--warn);}
+  .odev-item.normal::before{background:var(--accent3);}
+  .odev-item.done::before{background:var(--muted);}
+  .ochk{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s;background:var(--card);}
+  .ochk.checked{background:var(--accent3);border-color:var(--accent3);}
+  .ochk .ci{font-size:12px;display:none;} .ochk.checked .ci{display:block;}
+  .obody{flex:1;min-width:0;}
+  .oders{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--accent2);font-weight:600;margin-bottom:3px;}
+  .odesc{font-size:14px;font-weight:500;line-height:1.4;margin-bottom:6px;word-break:break-word;}
+  .ometa{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .otarih{font-size:11px;color:var(--muted);}
+  .kbadge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+  .kbadge.red{background:#4c150033;color:var(--danger);border:1px solid #f8717140;}
+  .kbadge.yellow{background:#78350033;color:var(--warn);border:1px solid #fbbf2440;}
+  .kbadge.green{background:#16534033;color:var(--accent3);border:1px solid #34d39940;}
+  .odel{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;}
+
+  .fab{position:fixed;bottom:72px;right:18px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px #4f8ef760;display:flex;align-items:center;justify-content:center;z-index:50;transition:transform .15s;}
+  .fab:active{transform:scale(0.92);}
+
+  .modal-overlay{position:fixed;inset:0;background:#00000090;z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:430px;transform:translateY(40px);transition:transform .25s;max-height:88svh;overflow-y:auto;}
+  .modal-overlay.open .modal{transform:translateY(0);}
+  .modal h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;}
+  .modal label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px;font-weight:600;}
+  .modal input,.modal select,.modal textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px;transition:border-color .2s;}
+  .modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--accent);}
+  .modal textarea{resize:vertical;min-height:72px;}
+  .modal select option{background:var(--card);}
+  .btn-row{display:flex;gap:10px;margin-top:4px;}
+  .btn{flex:1;padding:13px;border-radius:12px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:transform .15s;}
+  .btn:active{transform:scale(0.97);}
+  .btn-p{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+  .btn-c{background:var(--card);color:var(--muted);border:1px solid var(--border);}
+
+  .devam-ders{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;}
+  .devam-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;gap:8px;}
+  .devam-dadi{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;flex:1;}
+  .devam-sayac{text-align:right;flex-shrink:0;}
+  .devam-sayi{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1;}
+  .devam-lbl{font-size:10px;color:var(--muted);}
+  .devam-info{font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.6;}
+  .devam-btns{display:flex;gap:8px;margin-top:10px;}
+  .devam-btn{flex:1;padding:9px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+  .devam-btn:active{transform:scale(0.95);}
+  .dbtn-red{background:#4c150033;color:var(--danger);border:1px solid #f8717140;}
+  .dbtn-grn{background:#16534033;color:var(--accent3);border:1px solid #34d39940;}
+  .devam-warn{font-size:11px;padding:8px 10px;border-radius:8px;margin-top:8px;line-height:1.5;}
+  .dw-orange{background:#78350033;color:var(--warn);border:1px solid #fbbf2440;}
+  .dw-red{background:#4c150033;color:var(--danger);border:1px solid #f8717140;}
+
+  .ders-m{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+  .ders-m-info{flex:1;}
+  .ders-m-ad{font-size:14px;font-weight:600;margin-bottom:3px;}
+  .ders-m-sub{font-size:11px;color:var(--muted);line-height:1.5;}
+  .ders-m-del{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px;}
+
+  .info-box{background:#1e3a5f33;border:1px solid #4f8ef740;border-radius:10px;padding:10px 12px;font-size:12px;color:var(--accent);margin-bottom:14px;line-height:1.6;}
+  .info-box strong{color:var(--text);}
+  .hesap-prev{background:#16534022;border:1px solid #34d39940;border-radius:10px;padding:10px 12px;font-size:12px;color:var(--accent3);margin-bottom:14px;line-height:1.6;display:none;}
+
+  .empty{text-align:center;padding:44px 24px;color:var(--muted);font-size:14px;}
+  .empty .ei{font-size:48px;margin-bottom:12px;opacity:.5;}
+  .stitle{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:14px 0 8px;}
+
+  .pages::-webkit-scrollbar{width:3px;}
+  .pages::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  .toast{position:fixed;top:76px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:500;z-index:200;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px #00000060;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="header-top">
+      <div>
+        <div class="logo">Diş<span>Ta</span><em>Kip</em></div>
+        <div class="subtitle">🦷 Diş Hekimliği · 2. Sınıf · 14 Haftalık Dönem</div>
+      </div>
+      <div class="hbadge">📅 <span id="today-date"></span></div>
+    </div>
+  </header>
+
+  <div class="pages">
+
+    <!-- ÖZET -->
+    <div class="page active" id="page-ozet">
+      <div class="stat-grid">
+        <div class="stat-box c-blue">
+          <div class="sval" id="s-bekleyen">0</div>
+          <div class="slbl">Bekleyen Ödev</div>
+        </div>
+        <div class="stat-box c-red">
+          <div class="sval" id="s-acil">0</div>
+          <div class="slbl">Acil (≤2 gün)</div>
+        </div>
+        <div class="stat-box c-green">
+          <div class="sval" id="s-biten">0</div>
+          <div class="slbl">Tamamlanan</div>
+        </div>
+        <div class="stat-box c-purple">
+          <div class="sval" id="s-riskli">0</div>
+          <div class="slbl">Riskli Ders</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Devam Durumu · %80 Zorunlu</div>
+        <div id="ozet-devam"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent2)"></span>Yaklaşan Ödevler</div>
+        <div id="ozet-odev"></div>
+      </div>
+    </div>
+
+    <!-- ÖDEVLER -->
+    <div class="page" id="page-odev">
+      <div class="stitle">Bekleyen</div>
+      <div id="odev-bekleyen"></div>
+      <div class="stitle">Tamamlanan</div>
+      <div id="odev-biten"></div>
+    </div>
+
+    <!-- DEVAMSIZLIK -->
+    <div class="page" id="page-devam">
+      <div class="info-box">
+        📐 <strong>%80 Devam Zorunluluğu · 14 Haftalık Dönem</strong><br>
+        Formül: <strong>Haftalık saat × 14 × %20 = Max devamsızlık</strong><br>
+        Bu saati aşarsan o dersten <strong>kalırsın!</strong>
+      </div>
+      <div id="devam-list"></div>
+    </div>
+
+    <!-- DERSLER -->
+    <div class="page" id="page-dersler">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent3)"></span>Yeni Ders Ekle</div>
+        <div class="info-box">
+          Haftalık saati gir → max devamsızlık otomatik hesaplanır<br>
+          <strong>Örnek:</strong> 4 saat/hafta → 4 × 14 × 0.20 = <strong>11 saat max</strong>
+        </div>
+        <label>Ders Adı</label>
+        <input type="text" id="nd-ad" placeholder="örn. Oral Biyoloji">
+        <label>Haftalık Saat (kaç saat/hf?)</label>
+        <input type="number" id="nd-saat" placeholder="örn. 2 veya 4" min="1" max="12" oninput="previewMax(this.value)">
+        <div class="hesap-prev" id="hesap-prev"></div>
+        <div class="btn-row">
+          <button class="btn btn-p" onclick="derEkle()">➕ Ders Ekle</button>
+        </div>
+      </div>
+      <div class="stitle">Mevcut Dersler</div>
+      <div id="ders-list"></div>
+    </div>
+
+  </div>
+
+  <nav>
+    <button class="active" onclick="goPage('ozet',this)">
+      <span class="ni">🏠</span><span class="nl">Özet</span>
+    </button>
+    <button onclick="goPage('odev',this)">
+      <span class="ni">📚</span><span class="nl">Ödevler</span>
+    </button>
+    <button onclick="goPage('devam',this)">
+      <span class="ni">📋</span><span class="nl">Devam</span>
+    </button>
+    <button onclick="goPage('dersler',this)">
+      <span class="ni">⚙️</span><span class="nl">Dersler</span>
+    </button>
+  </nav>
+</div>
+
+<button class="fab" id="fab" onclick="modalAc()">＋</button>
+
+<div class="modal-overlay" id="modal-odev">
+  <div class="modal">
+    <h3>📝 Yeni Ödev</h3>
+    <label>Ders</label>
+    <select id="m-ders"></select>
+    <label>Açıklama</label>
+    <textarea id="m-desc" placeholder="Ödevin detayı..."></textarea>
+    <label>Teslim Tarihi</label>
+    <input type="date" id="m-tarih">
+    <label>Öncelik</label>
+    <select id="m-oncelik">
+      <option value="normal">🟢 Normal</option>
+      <option value="soon">🟡 Yakında</option>
+      <option value="urgent">🔴 Acil</option>
+    </select>
+    <div class="btn-row">
+      <button class="btn btn-c" onclick="modalKapat()">İptal</button>
+      <button class="btn btn-p" onclick="odevEkle()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── SABİTLER ────────────────────────────────────────────────
+const HAFTA = 14;
+// %80 zorunlu devam = en fazla %20 devamsız olabilirsin
+function maxDevamsizlik(saatPerHafta) {
+  // Toplam saat = saatPerHafta × 14
+  // Max devamsızlık = toplam × 0.20 (aşağı yuvarla)
+  return Math.floor(saatPerHafta * HAFTA * 0.20);
+}
+// Örnekler:
+//   2 saat/hf → 2×14=28 toplam → floor(28×0.2)=5 saat max devamsızlık
+//   3 saat/hf → 3×14=42 toplam → floor(42×0.2)=8 saat max devamsızlık
+//   4 saat/hf → 4×14=56 toplam → floor(56×0.2)=11 saat max devamsızlık
+
+const VARSAYILAN = [
+  {id:1, ad:"Temel Tıp Bilimleri",      saat:4},
+  {id:2, ad:"Oral Biyoloji",             saat:2},
+  {id:3, ad:"Protetik Diş Tedavisi",     saat:4},
+  {id:4, ad:"Diş Hastalıkları ve Ted.",  saat:3},
+  {id:5, ad:"Ortodonti",                 saat:2},
+  {id:6, ad:"Periodontoloji",            saat:2},
+  {id:7, ad:"Radyoloji",                 saat:2},
+  {id:8, ad:"Ağız Mikrobiyolojisi",      saat:2},
+].map(d => ({...d, max: maxDevamsizlik(d.saat)}));
+
+// ─── STATE ───────────────────────────────────────────────────
+let S = { dersler:[], odevler:[], devamsizlik:{} };
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('dishtakip_v3');
+    if (raw) S = JSON.parse(raw);
+    else { S.dersler = VARSAYILAN; save(); }
+  } catch(e) { S.dersler = VARSAYILAN; }
+  // Her yükleme/güncellemede max'ı formülle garantile
+  S.dersler.forEach(d => {
+    d.max = maxDevamsizlik(d.saat);
+    if (!(d.id in S.devamsizlik)) S.devamsizlik[d.id] = 0;
+  });
+}
+function save() { localStorage.setItem('dishtakip_v3', JSON.stringify(S)); }
+
+// ─── TARIH ───────────────────────────────────────────────────
+function bugun() { return new Date().toISOString().split('T')[0]; }
+function fmtTR(s) {
+  if (!s) return '';
+  const [,m,d] = s.split('-');
+  const ay = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  return `${+d} ${ay[+m-1]}`;
+}
+function kalanGun(s) {
+  if (!s) return 999;
+  const now = new Date(); now.setHours(0,0,0,0);
+  const t = new Date(s); t.setHours(0,0,0,0);
+  return Math.round((t-now)/86400000);
+}
+
+// ─── NAV ─────────────────────────────────────────────────────
+function goPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('fab').style.display =
+    (name==='odev'||name==='ozet') ? 'flex' : 'none';
+  render();
+}
+
+// ─── MODAL ───────────────────────────────────────────────────
+function modalAc() {
+  document.getElementById('m-ders').innerHTML =
+    S.dersler.map(d => `<option value="${d.id}">${d.ad}</option>`).join('');
+  const ti = document.getElementById('m-tarih');
+  if (!ti.value) ti.value = bugun();
+  document.getElementById('modal-odev').classList.add('open');
+}
+function modalKapat() { document.getElementById('modal-odev').classList.remove('open'); }
+document.getElementById('modal-odev').addEventListener('click', function(e) {
+  if (e.target===this) modalKapat();
+});
+
+// ─── ÖDEV ────────────────────────────────────────────────────
+function odevEkle() {
+  const dersId = +document.getElementById('m-ders').value;
+  const desc   = document.getElementById('m-desc').value.trim();
+  const tarih  = document.getElementById('m-tarih').value;
+  const onc    = document.getElementById('m-oncelik').value;
+  if (!desc) { toast('⚠️ Açıklama boş olamaz'); return; }
+  S.odevler.push({ id:Date.now(), dersId, desc, tarih, oncelik:onc, done:false });
+  document.getElementById('m-desc').value = '';
+  save(); modalKapat(); render(); toast('✅ Ödev eklendi!');
+}
+function odevToggle(id) {
+  const o = S.odevler.find(x => x.id===id);
+  if (o) { o.done=!o.done; save(); render(); }
+}
+function odevSil(id) {
+  S.odevler = S.odevler.filter(x => x.id!==id);
+  save(); render(); toast('🗑️ Ödev silindi');
+}
+
+// ─── DERS ────────────────────────────────────────────────────
+function previewMax(val) {
+  const s = +val;
+  const el = document.getElementById('hesap-prev');
+  if (!s || s<1) { el.style.display='none'; return; }
+  const toplam = s * HAFTA;
+  const max = maxDevamsizlik(s);
+  el.style.display = 'block';
+  el.innerHTML = `Dönem toplam: <strong>${toplam} saat</strong><br>
+    Max devamsızlık: <strong>${max} saat</strong>
+    <span style="opacity:.7">(${toplam} × 0.20 = ${(toplam*0.2).toFixed(1)} → aşağı yuvarlandı)</span>`;
+}
+function derEkle() {
+  const ad   = document.getElementById('nd-ad').value.trim();
+  const saat = +document.getElementById('nd-saat').value;
+  if (!ad)        { toast('⚠️ Ders adı gir'); return; }
+  if (!saat||saat<1) { toast('⚠️ Haftalık saati gir'); return; }
+  const max = maxDevamsizlik(saat);
+  const id  = Date.now();
+  S.dersler.push({id, ad, saat, max});
+  S.devamsizlik[id] = 0;
+  document.getElementById('nd-ad').value = '';
+  document.getElementById('nd-saat').value = '';
+  document.getElementById('hesap-prev').style.display = 'none';
+  save(); render();
+  toast(`📚 ${ad} eklendi · max ${max}h devamsızlık`);
+}
+function derSil(id) {
+  if (!confirm('Bu dersi ve ilgili ödevleri silmek istiyor musun?')) return;
+  S.dersler   = S.dersler.filter(d => d.id!==id);
+  S.odevler   = S.odevler.filter(o => o.dersId!==id);
+  delete S.devamsizlik[id];
+  save(); render(); toast('🗑️ Ders silindi');
+}
+
+// ─── DEVAMSIZLIK ─────────────────────────────────────────────
+function devamsizEkle(id) {
+  const d = S.dersler.find(x => x.id===id);
+  if (!d) return;
+  S.devamsizlik[id] = (S.devamsizlik[id]||0) + 1;
+  save(); render();
+  const k = S.devamsizlik[id];
+  if (k >= d.max) toast(`🚨 ${d.ad}: Limit doldu!`);
+  else toast(`📋 ${d.ad}: ${k}/${d.max} saat`);
+}
+function devamsizCikar(id) {
+  if ((S.devamsizlik[id]||0) <= 0) return;
+  S.devamsizlik[id]--;
+  save(); render();
+}
+
+// ─── RENDER ──────────────────────────────────────────────────
+function dersAd(id) { const d=S.dersler.find(x=>x.id===id); return d?d.ad:'—'; }
+
+function odevKart(o, silBtn=true) {
+  const kalan = kalanGun(o.tarih);
+  const cls = o.done ? 'done' : o.oncelik;
+  let kb = '';
+  if (!o.done && o.tarih) {
+    let c='green', lbl=kalan+' gün';
+    if (kalan<0)   {c='red';   lbl='GEÇTİ';}
+    else if (kalan===0) {c='red';lbl='BUGÜN';}
+    else if (kalan<=2)  {c='red';   lbl=kalan+' gün';}
+    else if (kalan<=7)  {c='yellow';lbl=kalan+' gün';}
+    kb = `<span class="kbadge ${c}">${lbl}</span>`;
+  }
+  return `<div class="odev-item ${cls}">
+    <div class="ochk ${o.done?'checked':''}" onclick="odevToggle(${o.id})">
+      <span class="ci">✓</span>
+    </div>
+    <div class="obody">
+      <div class="oders">${dersAd(o.dersId)}</div>
+      <div class="odesc">${o.desc}</div>
+      <div class="ometa">
+        ${o.tarih?`<span class="otarih">📅 ${fmtTR(o.tarih)}</span>`:''}
+        ${kb}
+      </div>
+    </div>
+    ${silBtn?`<button class="odel" onclick="odevSil(${o.id})">🗑</button>`:''}
+  </div>`;
+}
+
+function render() {
+  const bekleyen = S.odevler.filter(o=>!o.done);
+  const biten    = S.odevler.filter(o=>o.done);
+  const acil     = bekleyen.filter(o=>kalanGun(o.tarih)<=2);
+  const riskli   = S.dersler.filter(d=>{
+    const k=S.devamsizlik[d.id]||0;
+    return d.max>0 && k/d.max>=0.70;
+  });
+
+  // STATS
+  document.getElementById('s-bekleyen').textContent = bekleyen.length;
+  document.getElementById('s-acil').textContent     = acil.length;
+  document.getElementById('s-biten').textContent    = biten.length;
+  document.getElementById('s-riskli').textContent   = riskli.length;
+
+  // ÖZET DEVAM
+  const odEl = document.getElementById('ozet-devam');
+  if (!S.dersler.length) {
+    odEl.innerHTML = '<div style="color:var(--muted);font-size:13px">Henüz ders eklenmedi.</div>';
+  } else {
+    odEl.innerHTML = S.dersler.map(d=>{
+      const k   = S.devamsizlik[d.id]||0;
+      const pct = d.max>0 ? Math.min(100,Math.round(k/d.max*100)) : 0;
+      const col = pct>=100?'var(--danger)':pct>=70?'var(--warn)':'var(--accent3)';
+      const bcl = pct>=100?'danger':pct>=70?'warn':'ok';
+      const btx = pct>=100?'SINIRDA!':pct>=70?'Dikkat!':'Güvende';
+      return `<div class="ders-row">
+        <div style="flex:1;min-width:0">
+          <div class="ders-name">${d.ad}</div>
+          <div class="pbar"><div class="pfill" style="width:${pct}%;background:${col}"></div></div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-left:8px;flex-shrink:0">
+          <span style="font-size:11px;color:var(--muted)">${k}/${d.max}h</span>
+          <span class="badge ${bcl}">${btx}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ÖZET ÖDEV
+  const ooEl = document.getElementById('ozet-odev');
+  const yakl = [...bekleyen].filter(o=>o.tarih).sort((a,b)=>a.tarih.localeCompare(b.tarih)).slice(0,4);
+  ooEl.innerHTML = yakl.length
+    ? yakl.map(o=>odevKart(o,false)).join('')
+    : '<div style="color:var(--muted);font-size:13px">🎉 Yaklaşan ödev yok!</div>';
+
+  // ÖDEVLER SAYFASI
+  const sb = [...bekleyen].sort((a,b)=>kalanGun(a.tarih)-kalanGun(b.tarih));
+  document.getElementById('odev-bekleyen').innerHTML = sb.length
+    ? sb.map(o=>odevKart(o)).join('')
+    : '<div class="empty"><div class="ei">🎉</div>Bekleyen ödev yok!</div>';
+  document.getElementById('odev-biten').innerHTML = biten.length
+    ? biten.map(o=>odevKart(o)).join('')
+    : '<div style="color:var(--muted);font-size:13px;padding:8px 0">Henüz tamamlanan yok.</div>';
+
+  // DEVAMSIZLIK SAYFASI
+  const dvEl = document.getElementById('devam-list');
+  if (!S.dersler.length) {
+    dvEl.innerHTML = '<div class="empty"><div class="ei">📋</div>Önce Dersler sekmesinden ders ekle.</div>';
+  } else {
+    dvEl.innerHTML = S.dersler.map(d=>{
+      const k      = S.devamsizlik[d.id]||0;
+      const kalan  = d.max - k;
+      const toplam = d.saat * HAFTA;
+      const pct    = d.max>0 ? Math.min(100,Math.round(k/d.max*100)) : 0;
+      const col    = pct>=100?'var(--danger)':pct>=70?'var(--warn)':'var(--accent3)';
+      let warn = '';
+      if (kalan<=0)
+        warn=`<div class="devam-warn dw-red">🚨 Limit doldu! Bu dersten <strong>kalabilirsin.</strong></div>`;
+      else if (kalan<=2)
+        warn=`<div class="devam-warn dw-orange">⚠️ Yalnızca <strong>${kalan} saat</strong> hakkın kaldı!</div>`;
+      else if (pct>=70)
+        warn=`<div class="devam-warn dw-orange">⚡ Limitin <strong>%${pct}'ini</strong> kullandın. Dikkat!</div>`;
+      return `<div class="devam-ders">
+        <div class="devam-hdr">
+          <div style="flex:1">
+            <div class="devam-dadi">${d.ad}</div>
+            <div class="devam-info">
+              Haftada <strong>${d.saat}h</strong> · Dönem toplamı <strong>${toplam}h</strong><br>
+              Max devamsızlık: <strong style="color:${col}">${d.max}h</strong>
+              <span style="opacity:.6">(${toplam}h × %20)</span>
+            </div>
+          </div>
+          <div class="devam-sayac">
+            <div class="devam-sayi" style="color:${col}">${k}</div>
+            <div class="devam-lbl">/ ${d.max} saat</div>
+          </div>
+        </div>
+        <div class="pbar">
+          <div class="pfill" style="width:${pct}%;background:${col}"></div>
+        </div>
+        <div class="devam-btns">
+          <button class="devam-btn dbtn-red" onclick="devamsizEkle(${d.id})">➕ Gelmedi (+1 saat)</button>
+          <button class="devam-btn dbtn-grn" onclick="devamsizCikar(${d.id})">↩ Düzelt (−1)</button>
+        </div>
+        ${warn}
+      </div>`;
+    }).join('');
+  }
+
+  // DERSLER SAYFASI
+  const drEl = document.getElementById('ders-list');
+  drEl.innerHTML = S.dersler.length
+    ? S.dersler.map(d=>{
+        const k      = S.devamsizlik[d.id]||0;
+        const toplam = d.saat * HAFTA;
+        return `<div class="ders-m">
+          <div class="ders-m-info">
+            <div class="ders-m-ad">${d.ad}</div>
+            <div class="ders-m-sub">
+              ${d.saat}h/hafta · ${toplam}h dönem toplamı<br>
+              Max devamsızlık: ${d.max}h · Kullanılan: ${k}h
+            </div>
+          </div>
+          <button class="ders-m-del" onclick="derSil(${d.id})">🗑</button>
+        </div>`;
+      }).join('')
+    : '<div class="empty"><div class="ei">📚</div>Henüz ders eklenmedi.</div>';
+}
+
+// ─── TOAST ───────────────────────────────────────────────────
+let toastT;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>el.classList.remove('show'), 2400);
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+loadState();
+const _d  = new Date();
+const _gn = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+const _ay = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+document.getElementById('today-date').textContent =
+  `${_gn[_d.getDay()]} ${_d.getDate()} ${_ay[_d.getMonth()]}`;
+document.getElementById('m-tarih').value = bugun();
+render();
+
+// ─── SERVICE WORKER (PWA) ─────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log('SW kayıtlı ✓'))
+      .catch(e => console.log('SW hatası:', e));
+  });
+}
+</script>
+</body>
+</html>

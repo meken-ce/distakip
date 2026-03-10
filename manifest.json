@@ -2,7 +2,7 @@
   "name": "DiştaKip – Diş Hekimliği",
   "short_name": "DiştaKip",
   "description": "Diş Hekimliği 2. Sınıf ödev ve devamsızlık takip uygulaması",
-  "start_url": "/distakip/",
+  "start_url": ".",
   "scope": "/distakip/",
   "display": "standalone",
   "background_color": "#0f1117",
